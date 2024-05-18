@@ -9,15 +9,27 @@ public sealed interface Stmt {
 
   }
 
-  record FunDeclaration(Token identifier, List<Token> params, BlockStatement body) implements Stmt {
+  record FunDeclaration(Token identifier, List<Token> params, BlockStmt body) implements Stmt {
 
   }
 
-  record BlockStatement(List<Stmt> statements) {
+  record BlockStmt(List<Stmt> statements) implements Stmt {
 
   }
 
   record ExprStmt(Expr expr) implements Stmt {
+
+  }
+
+  record IfStmt(Expr condition, BlockStmt body) implements Stmt {
+
+  }
+
+  record WhileStmt(Expr condition, BlockStmt body) implements Stmt {
+
+  }
+
+  record ReturnStmt(Expr value) implements Stmt {
 
   }
 

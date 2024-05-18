@@ -10,10 +10,13 @@ import de.duckulus.minesketch.ast.Expr.LogicalExpr;
 import de.duckulus.minesketch.ast.Expr.UnaryExpr;
 import de.duckulus.minesketch.ast.Expr.VariableExpr;
 import de.duckulus.minesketch.ast.Stmt;
-import de.duckulus.minesketch.ast.Stmt.BlockStatement;
+import de.duckulus.minesketch.ast.Stmt.BlockStmt;
 import de.duckulus.minesketch.ast.Stmt.ExprStmt;
 import de.duckulus.minesketch.ast.Stmt.FunDeclaration;
+import de.duckulus.minesketch.ast.Stmt.IfStmt;
+import de.duckulus.minesketch.ast.Stmt.ReturnStmt;
 import de.duckulus.minesketch.ast.Stmt.VarDeclaration;
+import de.duckulus.minesketch.ast.Stmt.WhileStmt;
 import de.duckulus.minesketch.token.Token;
 import de.duckulus.minesketch.token.TokenType;
 import java.util.ArrayList;
@@ -49,9 +52,43 @@ public class Parser {
   }
 
   private Stmt statement() {
+    if (match(TokenType.IF)) {
+      return ifStatement();
+    } else if (match(TokenType.WHILE)) {
+      return whileStatement();
+    } else if (match(TokenType.RETURN)) {
+      return returnStatement();
+    } else if (match(TokenType.LEFT_BRACE)) {
+      return block();
+    }
+
     Expr expr = expression();
     consume(TokenType.SEMICOLON);
     return new ExprStmt(expr);
+  }
+
+  private Stmt returnStatement() {
+    Expr expr = expression();
+    consume(TokenType.SEMICOLON);
+    return new ReturnStmt(expr);
+  }
+
+  private Stmt whileStatement() {
+    consume(TokenType.LEFT_PAREN);
+    Expr condition = expression();
+    consume(TokenType.RIGHT_PAREN);
+    consume(TokenType.LEFT_BRACKET);
+    BlockStmt body = block();
+    return new WhileStmt(condition, body);
+  }
+
+  private Stmt ifStatement() {
+    consume(TokenType.LEFT_PAREN);
+    Expr condition = expression();
+    consume(TokenType.RIGHT_PAREN);
+    consume(TokenType.LEFT_BRACKET);
+    BlockStmt body = block();
+    return new IfStmt(condition, body);
   }
 
   private Stmt funDeclaration() {
@@ -67,18 +104,19 @@ public class Parser {
       consume(TokenType.RIGHT_PAREN);
     }
 
-    BlockStatement block = block();
+    consume(TokenType.LEFT_BRACE);
+
+    BlockStmt block = block();
 
     return new FunDeclaration(identifier, params, block);
   }
 
-  private BlockStatement block() {
-    consume(TokenType.LEFT_BRACE);
+  private BlockStmt block() {
     List<Stmt> statements = new ArrayList<>();
     while (!match(TokenType.RIGHT_BRACE)) {
       statements.add(declaration());
     }
-    return new BlockStatement(statements);
+    return new BlockStmt(statements);
   }
 
 

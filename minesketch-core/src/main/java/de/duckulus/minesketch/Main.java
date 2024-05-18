@@ -9,9 +9,15 @@ public class Main {
 
   private static String text = """
          ~ asdfjklö
+         var b = "Hallo Welt";
+         
          fn tqbf() { ~asdf
           input var x = 23.5 + 1;
           print(x[3]);
+         }
+         
+         fn fortnite() {
+          return 23;
          }
       """;
 
