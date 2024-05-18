@@ -10,14 +10,15 @@ public class Scanner {
 
   private static final Map<String, TokenType> keywords = Map.of(
       "var", TokenType.VAR,
-      "fun", TokenType.FUN,
+      "fn", TokenType.FN,
       "while", TokenType.WHILE,
       "for", TokenType.FOR,
       "if", TokenType.IF,
       "null", TokenType.NULL,
       "input", TokenType.INPUT,
       "true", TokenType.TRUE,
-      "false", TokenType.FALSE
+      "false", TokenType.FALSE,
+      "return", TokenType.RETURN
   );
 
   private final List<Token> tokens = new ArrayList<>();
