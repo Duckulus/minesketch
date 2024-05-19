@@ -4,8 +4,8 @@ import java.util.List;
 
 public class BuiltinFunction implements Function {
 
-  private int arity;
-  private java.util.function.Function<List<Object>, Object> function;
+  private final int arity;
+  private final java.util.function.Function<List<Object>, Object> function;
 
   public BuiltinFunction(int arity, java.util.function.Function<List<Object>, Object> function) {
     this.arity = arity;

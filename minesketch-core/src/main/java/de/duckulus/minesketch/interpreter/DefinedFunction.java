@@ -6,8 +6,8 @@ import java.util.List;
 
 public class DefinedFunction implements Function {
 
-  private FunDeclaration declaration;
-  private Environment environment;
+  private final FunDeclaration declaration;
+  private final Environment environment;
 
   public DefinedFunction(FunDeclaration declaration, Environment environment) {
     this.declaration = declaration;

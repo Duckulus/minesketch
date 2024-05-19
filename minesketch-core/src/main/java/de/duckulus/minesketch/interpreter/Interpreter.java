@@ -90,9 +90,7 @@ public class Interpreter {
           executeBlock(ifStmt.elseBlock().statements(), new Environment(environment));
         }
       }
-      case ExprStmt exprStmt -> {
-        evaluate(exprStmt.expr());
-      }
+      case ExprStmt exprStmt -> evaluate(exprStmt.expr());
       case WhileStmt whileStmt -> {
         Expr condition = whileStmt.condition();
         while (isTruthy(evaluate(condition))) {

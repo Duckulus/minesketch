@@ -4,8 +4,8 @@ import java.util.HashMap;
 
 public class Environment {
 
-  private Environment enclosing;
-  private HashMap<String, Object> data = new HashMap<>();
+  private final Environment enclosing;
+  private final HashMap<String, Object> data = new HashMap<>();
 
   public Environment() {
     this.enclosing = null;
