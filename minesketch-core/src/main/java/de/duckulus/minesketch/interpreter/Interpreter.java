@@ -272,4 +272,8 @@ public class Interpreter {
     };
   }
 
+  public void clearEnvironment() {
+    environment.clear();
+  }
+
 }

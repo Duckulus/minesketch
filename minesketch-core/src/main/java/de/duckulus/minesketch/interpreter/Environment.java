@@ -47,4 +47,8 @@ public class Environment {
     return null;
   }
 
+  public void clear() {
+    data.clear();
+  }
+
 }
