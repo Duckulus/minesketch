@@ -21,7 +21,7 @@ public sealed interface Stmt {
 
   }
 
-  record IfStmt(Expr condition, BlockStmt body) implements Stmt {
+  record IfStmt(Expr condition, BlockStmt body, BlockStmt elseBlock) implements Stmt {
 
   }
 

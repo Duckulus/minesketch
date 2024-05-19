@@ -77,7 +77,7 @@ public class Parser {
     consume(TokenType.LEFT_PAREN);
     Expr condition = expression();
     consume(TokenType.RIGHT_PAREN);
-    consume(TokenType.LEFT_BRACKET);
+    consume(TokenType.LEFT_BRACE);
     BlockStmt body = block();
     return new WhileStmt(condition, body);
   }
@@ -86,9 +86,15 @@ public class Parser {
     consume(TokenType.LEFT_PAREN);
     Expr condition = expression();
     consume(TokenType.RIGHT_PAREN);
-    consume(TokenType.LEFT_BRACKET);
+    consume(TokenType.LEFT_BRACE);
     BlockStmt body = block();
-    return new IfStmt(condition, body);
+    BlockStmt elseBlock = null;
+    if (match(TokenType.ELSE)) {
+      consume(TokenType.LEFT_BRACE);
+      elseBlock = block();
+    }
+
+    return new IfStmt(condition, body, elseBlock);
   }
 
   private Stmt funDeclaration() {
@@ -253,7 +259,7 @@ public class Parser {
     }
     if (match(TokenType.LITERAL_FLOAT) || match(TokenType.LITERAL_INT) || match(
         TokenType.LITERAL_STRING)) {
-      return new LiteralExpr(previous());
+      return new LiteralExpr(previous().literalValue());
     }
     if (match(TokenType.LEFT_PAREN)) {
       Expr expr = expression();
