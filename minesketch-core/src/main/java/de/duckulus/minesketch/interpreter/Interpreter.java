@@ -21,11 +21,14 @@ import de.duckulus.minesketch.ast.Stmt.ReturnStmt;
 import de.duckulus.minesketch.ast.Stmt.VarDeclaration;
 import de.duckulus.minesketch.ast.Stmt.WhileStmt;
 import de.duckulus.minesketch.token.Token;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Interpreter {
 
   private Environment environment = new Environment();
+  private Map<String, Object> inputValues = new HashMap<>();
 
   public Interpreter() {
     addBuiltinFunction("println", new BuiltinFunction(1, args -> {
@@ -50,6 +53,10 @@ public class Interpreter {
 
   public void addBuiltinFunction(String name, BuiltinFunction function) {
     environment.define(name, function);
+  }
+
+  public void setInputValue(String name, Object value) {
+    inputValues.put(name, value);
   }
 
   public void interpret(String text) {
@@ -93,8 +100,20 @@ public class Interpreter {
     switch (statement) {
       case FunDeclaration funDeclaration -> environment.define(funDeclaration.identifier().lexeme(),
           new DefinedFunction(funDeclaration, environment));
-      case VarDeclaration varDeclaration -> environment.define(varDeclaration.identifier().lexeme(),
-          evaluate(varDeclaration.value()));
+      case VarDeclaration varDeclaration -> {
+        if (varDeclaration.isInput()) {
+          if (inputValues.containsKey(varDeclaration.identifier().lexeme())) {
+            environment.define(varDeclaration.identifier().lexeme(),
+                inputValues.get(varDeclaration.identifier().lexeme()));
+          } else {
+            throw new RuntimeException(
+                "Input Variable " + varDeclaration.identifier().lexeme() + " not defined");
+          }
+        } else {
+          environment.define(varDeclaration.identifier().lexeme(),
+              evaluate(varDeclaration.value()));
+        }
+      }
       case ReturnStmt(Expr expr) -> throw new Return(evaluate(expr));
       case BlockStmt blockStmt ->
           executeBlock(blockStmt.statements(), new Environment(environment));

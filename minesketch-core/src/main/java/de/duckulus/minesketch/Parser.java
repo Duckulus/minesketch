@@ -44,7 +44,7 @@ public class Parser {
     if (match(TokenType.INPUT)) {
       return inputVarDeclaration();
     } else if (match(TokenType.VAR)) {
-      return varDeclaration(false);
+      return varDeclaration();
     } else if (match(TokenType.FN)) {
       return funDeclaration();
     } else {
@@ -129,15 +129,17 @@ public class Parser {
 
   private Stmt inputVarDeclaration() {
     consume(TokenType.VAR);
-    return varDeclaration(true);
+    Token identifier = consume(TokenType.IDENTIFIER);
+    consume(TokenType.SEMICOLON);
+    return new VarDeclaration(identifier, null, true);
   }
 
-  private Stmt varDeclaration(boolean input) {
+  private Stmt varDeclaration() {
     Token identifier = consume(TokenType.IDENTIFIER);
     consume(TokenType.EQUAL);
     Expr expr = expression();
     consume(TokenType.SEMICOLON);
-    return new VarDeclaration(identifier, expr, input);
+    return new VarDeclaration(identifier, expr, false);
   }
 
   private Expr expression() {
@@ -277,7 +279,8 @@ public class Parser {
     if (match(TokenType.IDENTIFIER)) {
       return new VariableExpr(previous());
     }
-    throw new RuntimeException("Expected Expression");
+    throw new RuntimeException(
+        "Line " + current().line() + ": " + current().lexeme() + " is not a valid expression");
   }
 
   private Token consume(TokenType tokenType) {
