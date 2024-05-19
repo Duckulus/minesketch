@@ -3,7 +3,6 @@ package de.duckulus.minesketch.plugin;
 import de.duckulus.minesketch.interpreter.BuiltinFunction;
 import de.duckulus.minesketch.interpreter.Interpreter;
 import java.util.Collections;
-import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -11,13 +10,12 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitTask;
 
 public class SketchRunner {
 
   private final Interpreter interpreter = new Interpreter();
   private Sketch runningSketch = null;
-  private BukkitTask task;
+  private Thread thread;
   private World world;
 
   public SketchRunner() {
@@ -31,9 +29,11 @@ public class SketchRunner {
       return null;
     }));
     interpreter.addBuiltinFunction("setBlock", new BuiltinFunction(4, args -> {
-      world.getBlockAt((int) args.get(0), (int) args.get(1), (int) args.get(2))
-          .setType(Material.valueOf(
-              (String) args.get(3)));
+      Bukkit.getScheduler().runTask(Minesketch.get(), () -> {
+        world.getBlockAt((int) args.get(0), (int) args.get(1), (int) args.get(2))
+            .setType(Material.valueOf(
+                (String) args.get(3)));
+      });
       return null;
     }));
   }
@@ -55,31 +55,39 @@ public class SketchRunner {
     interpreter.setInputValue("z", location.getBlockZ());
 
     this.runningSketch = sketch;
-    try {
-      interpreter.interpret(sketch.content());
-      interpreter.invokeFunction("setup", Collections.emptyList());
-    } catch (Exception e) {
-      stopSketch();
-      audience.sendMessage(Minesketch.errorMessage(e.toString()));
-      return;
-    }
-
-    this.task = Bukkit.getScheduler().runTaskTimer(Minesketch.get(), () -> {
+    thread = new Thread(() -> {
       try {
-        interpreter.invokeFunction("tick", Collections.emptyList());
+        interpreter.interpret(sketch.content());
+        interpreter.invokeFunction("setup", Collections.emptyList());
       } catch (Exception e) {
         stopSketch();
         audience.sendMessage(Minesketch.errorMessage(e.toString()));
+        return;
       }
-    }, 0, 1);
 
+      long lastTick = 0;
+      while (!Thread.currentThread().isInterrupted()) {
+        if (System.currentTimeMillis() - lastTick >= 50) {
+          try {
+            interpreter.invokeFunction("tick", Collections.emptyList());
+          } catch (Exception e) {
+            stopSketch();
+            audience.sendMessage(Minesketch.errorMessage(e.toString()));
+          }
+          lastTick = System.currentTimeMillis();
+        }
+      }
+    });
+    thread.start();
   }
 
   public void stopSketch() {
-    this.runningSketch = null;
-    if (task != null) {
-      task.cancel();
-    }
+    Bukkit.getScheduler().runTaskAsynchronously(Minesketch.get(), () -> {
+      if (thread != null) {
+        thread.interrupt();
+      }
+      this.runningSketch = null;
+    });
   }
 
   public boolean isBusy() {

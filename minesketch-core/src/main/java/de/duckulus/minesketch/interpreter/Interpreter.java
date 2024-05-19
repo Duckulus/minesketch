@@ -128,7 +128,7 @@ public class Interpreter {
       case ExprStmt exprStmt -> evaluate(exprStmt.expr());
       case WhileStmt whileStmt -> {
         Expr condition = whileStmt.condition();
-        while (isTruthy(evaluate(condition))) {
+        while (isTruthy(evaluate(condition)) && !Thread.currentThread().isInterrupted()) {
           executeBlock(whileStmt.body().statements(), new Environment(environment));
         }
       }
