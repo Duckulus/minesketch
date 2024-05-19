@@ -31,7 +31,7 @@ public class Scanner {
 
   private int start = 0;
   private int index = 0;
-  private int line = 0;
+  private int line = 1;
 
   public Scanner(String text) {
     this.text = text;

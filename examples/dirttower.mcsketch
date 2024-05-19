@@ -1,0 +1,19 @@
+input var x;
+input var y;
+input var z;
+
+var i = 0;
+
+fn setup() {
+	broadcast("hello world");
+}
+
+~dirt tower
+fn tick() {
+	if (i <= 10) {
+		setBlock(x, y+i, z, "DIRT");
+		i = i + 1;
+	} else {
+		stop();
+	}
+}

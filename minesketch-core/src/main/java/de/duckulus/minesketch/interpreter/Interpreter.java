@@ -4,6 +4,7 @@ import de.duckulus.minesketch.Parser;
 import de.duckulus.minesketch.Scanner;
 import de.duckulus.minesketch.ast.Expr;
 import de.duckulus.minesketch.ast.Expr.ArrayAssignExpr;
+import de.duckulus.minesketch.ast.Expr.ArrayExpr;
 import de.duckulus.minesketch.ast.Expr.AssignExpr;
 import de.duckulus.minesketch.ast.Expr.BinaryExpr;
 import de.duckulus.minesketch.ast.Expr.CallExpr;
@@ -201,6 +202,18 @@ public class Interpreter {
             } else if (left instanceof Double d1 && right instanceof Double d2) {
               yield d1 <= d2;
             }
+          case BANG_EQUAL:
+            if (left instanceof Integer i1 && right instanceof Integer i2) {
+              yield !i1.equals(i2);
+            } else if (left instanceof Double d1 && right instanceof Double d2) {
+              yield !d1.equals(d2);
+            }
+          case EQUAL_EQUAL:
+            if (left instanceof Integer i1 && right instanceof Integer i2) {
+              yield i1.equals(i2);
+            } else if (left instanceof Double d1 && right instanceof Double d2) {
+              yield d1.equals(d2);
+            }
           default:
             throw new RuntimeException("Line " + operator.line() + ": Operator " + operator.type()
                 + " can't be applied to the supplied arguments");
@@ -279,6 +292,8 @@ public class Interpreter {
           throw new RuntimeException(arrayAssignExpr.name().indexed() + " can't be indexed");
         }
       }
+      case ArrayExpr(List<Expr> elements) ->
+          Array.of(elements.stream().map(this::evaluate).toList());
     };
   }
 

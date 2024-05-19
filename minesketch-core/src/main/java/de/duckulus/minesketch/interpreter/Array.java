@@ -1,11 +1,21 @@
 package de.duckulus.minesketch.interpreter;
 
+import java.util.List;
+
 public class Array {
 
   private Object[] data;
 
   public Array(int capacity) {
     data = new Object[capacity];
+  }
+
+  public Array(Object[] data) {
+    this.data = data;
+  }
+
+  public static Object of(List<Object> elements) {
+    return new Array(elements.toArray());
   }
 
   public Object get(int index) {

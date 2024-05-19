@@ -2,6 +2,7 @@ package de.duckulus.minesketch;
 
 import de.duckulus.minesketch.ast.Expr;
 import de.duckulus.minesketch.ast.Expr.ArrayAssignExpr;
+import de.duckulus.minesketch.ast.Expr.ArrayExpr;
 import de.duckulus.minesketch.ast.Expr.AssignExpr;
 import de.duckulus.minesketch.ast.Expr.BinaryExpr;
 import de.duckulus.minesketch.ast.Expr.CallExpr;
@@ -217,7 +218,7 @@ public class Parser {
 
   private Expr factor() {
     Expr left = unary();
-    while (match(TokenType.SLASH) || match(TokenType.STAR)) {
+    while (match(TokenType.SLASH) || match(TokenType.STAR) || match(TokenType.MODULO)) {
       Token op = previous();
       Expr right = unary();
       left = new BinaryExpr(left, op, right);
@@ -275,6 +276,16 @@ public class Parser {
       Expr expr = expression();
       consume(TokenType.RIGHT_PAREN);
       return expr;
+    }
+    if (match(TokenType.LEFT_BRACKET)) {
+      List<Expr> elements = new ArrayList<>();
+      if (!match(TokenType.RIGHT_BRACKET)) {
+        do {
+          elements.add(expression());
+        } while (match(TokenType.COMMA));
+        consume(TokenType.RIGHT_BRACKET);
+      }
+      return new ArrayExpr(elements);
     }
     if (match(TokenType.IDENTIFIER)) {
       return new VariableExpr(previous());

@@ -1,0 +1,122 @@
+input var x;
+input var y;
+input var z;
+
+var width = 20;
+var height = 20;
+var iteration = 0;
+
+var board = array(width*height);
+
+fn indexToCoords(index) {
+  var x = index % width;
+  var y = index / width;
+  return [x, y];
+}
+
+fn coordsToIndex(x, y) {
+  return y * width + x;
+}
+
+fn nextGeneration() {
+  var boardCopy = array(length(board));
+  var idx = 0;
+  while(idx < length(board)) {
+    boardCopy[idx] = board[idx];
+    idx = idx + 1;
+  }
+
+  var i = 0;
+  while(i < width) {
+    var j = 0;
+    while(j < height) {
+      var index = coordsToIndex(i, j);
+      var alive = board[index];
+      var aliveNeighbors = 0;
+
+      var dx = -1;
+      while(dx < 2) {
+       var dy = -1;
+       while(dy < 2) {
+        if(dx!=0 || dy!=0) {
+          var nx = i + dx;
+          var ny = j + dy;
+          if(nx < 0) {
+            nx = width - 1;
+          }
+
+          if(nx >= width) {
+            nx = 0;
+          }
+
+          if(ny < 0) {
+            ny = height - 1;
+          }
+
+          if(ny >= height) {
+            ny = 0;
+          }
+
+          if(board[coordsToIndex(nx, ny)]) {
+            aliveNeighbors = aliveNeighbors + 1;
+          }
+        }
+        dy = dy + 1;
+       }
+       dx = dx + 1;
+      }
+
+      if(alive) {
+        boardCopy[index] = aliveNeighbors == 2 || aliveNeighbors == 3;
+      } else {
+        boardCopy[index] = aliveNeighbors == 3;
+      }
+
+      j = j + 1;
+    }
+    i = i + 1;
+  }
+  board = boardCopy;
+}
+
+fn buildBoard() {
+  var idx = 0;
+  while(idx < length(board)) {
+    var coords = indexToCoords(idx);
+    var bx = x + coords[0];
+    var bz = z + coords[1];
+    var material = null;
+
+    if(board[idx]) {
+      material = "WHITE_CONCRETE";
+    } else {
+      material = "BLACK_CONCRETE";
+    }
+
+    setBlock(bx, y, bz, material);
+    idx = idx + 1;
+  }
+}
+
+fn setup() {
+  var i = 0;
+  while(i<length(board)) {
+    board[i] = false;
+    i = i + 1;
+  }
+  board[coordsToIndex(1,1)] = true;
+  board[coordsToIndex(2,2)] = true;
+  board[coordsToIndex(2,3)] = true;
+  board[coordsToIndex(1,3)] = true;
+  board[coordsToIndex(0,3)] = true;
+
+  buildBoard();
+}
+
+fn tick() {
+  if(iteration % 2==0) {
+    nextGeneration();
+    buildBoard();
+  }
+  iteration = iteration + 1;
+}

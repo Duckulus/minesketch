@@ -13,6 +13,10 @@ public sealed interface Expr {
 
   }
 
+  record ArrayExpr(List<Expr> elements) implements Expr {
+
+  }
+
   record BinaryExpr(Expr left, Token operator, Expr right) implements Expr {
 
   }
