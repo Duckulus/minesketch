@@ -9,6 +9,10 @@ public sealed interface Expr {
 
   }
 
+  record ArrayAssignExpr(IndexExpr name, Expr value) implements Expr {
+
+  }
+
   record BinaryExpr(Expr left, Token operator, Expr right) implements Expr {
 
   }

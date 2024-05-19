@@ -1,6 +1,7 @@
 package de.duckulus.minesketch;
 
 import de.duckulus.minesketch.ast.Expr;
+import de.duckulus.minesketch.ast.Expr.ArrayAssignExpr;
 import de.duckulus.minesketch.ast.Expr.AssignExpr;
 import de.duckulus.minesketch.ast.Expr.BinaryExpr;
 import de.duckulus.minesketch.ast.Expr.CallExpr;
@@ -144,14 +145,21 @@ public class Parser {
   }
 
   private Expr assignment() {
-    if (current().type() == TokenType.IDENTIFIER && next().type() == TokenType.EQUAL) {
-      Token identifier = consume(TokenType.IDENTIFIER);
-      consume(TokenType.EQUAL);
+    Expr left = logicOr();
+
+    if (match(TokenType.EQUAL)) {
       Expr right = assignment();
-      return new AssignExpr(identifier, right);
+
+      if (left instanceof VariableExpr varExpr) {
+        return new AssignExpr(varExpr.variable(), right);
+      } else if (left instanceof IndexExpr indexExpr) {
+        return new ArrayAssignExpr(indexExpr, right);
+      } else {
+        throw new RuntimeException("Invalid assignment target " + left);
+      }
     }
 
-    return logicOr();
+    return left;
   }
 
   private Expr logicOr() {

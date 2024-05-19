@@ -3,6 +3,7 @@ package de.duckulus.minesketch.interpreter;
 import de.duckulus.minesketch.Parser;
 import de.duckulus.minesketch.Scanner;
 import de.duckulus.minesketch.ast.Expr;
+import de.duckulus.minesketch.ast.Expr.ArrayAssignExpr;
 import de.duckulus.minesketch.ast.Expr.AssignExpr;
 import de.duckulus.minesketch.ast.Expr.BinaryExpr;
 import de.duckulus.minesketch.ast.Expr.CallExpr;
@@ -28,8 +29,22 @@ public class Interpreter {
 
   public Interpreter() {
     addBuiltinFunction("println", new BuiltinFunction(1, args -> {
-      System.out.println(args.getFirst().toString());
+      System.out.println(args.getFirst());
       return null;
+    }));
+
+    addBuiltinFunction("array", new BuiltinFunction(1, args -> {
+      if (args.getFirst() instanceof Integer capacity) {
+        return new Array(capacity);
+      } else {
+        throw new RuntimeException("Expected argument of type int but found " + args.getFirst());
+      }
+    }));
+
+    addBuiltinFunction("length", new BuiltinFunction(1, args -> switch (args.getFirst()) {
+      case String s -> s.length();
+      case Array arr -> arr.length();
+      default -> throw new RuntimeException("Function length can not be applied to this type");
     }));
   }
 
@@ -78,8 +93,8 @@ public class Interpreter {
     switch (statement) {
       case FunDeclaration funDeclaration -> environment.define(funDeclaration.identifier().lexeme(),
           new DefinedFunction(funDeclaration, environment));
-      case VarDeclaration varDeclaration ->
-          environment.define(varDeclaration.identifier().lexeme(), evaluate(varDeclaration.value()));
+      case VarDeclaration varDeclaration -> environment.define(varDeclaration.identifier().lexeme(),
+          evaluate(varDeclaration.value()));
       case ReturnStmt(Expr expr) -> throw new Return(evaluate(expr));
       case BlockStmt blockStmt ->
           executeBlock(blockStmt.statements(), new Environment(environment));
@@ -199,7 +214,6 @@ public class Interpreter {
               "Line " + variableExpr.variable().line() + ": Undefined Variable " + name);
         }
       }
-      case IndexExpr indexExpr -> null;
       case LogicalExpr(Expr left, Token operator, Expr right) -> switch (operator.type()) {
         case AND -> isTruthy(evaluate(left)) && isTruthy(evaluate(right));
         case OR -> isTruthy(evaluate(left)) || isTruthy(evaluate(right));
@@ -221,6 +235,30 @@ public class Interpreter {
                 "Line " + unaryExpr.operator().line() + ": Unary Operator " + unaryExpr.operator()
                     .type() + " can't be applied to the supplied arguments");
         };
+      }
+      case IndexExpr indexExpr -> {
+        if (evaluate(indexExpr.indexed()) instanceof Array arr) {
+          if (evaluate(indexExpr.index()) instanceof Integer index) {
+            yield arr.get(index);
+          } else {
+            throw new RuntimeException(indexExpr.index() + "can't be used as index");
+          }
+        } else {
+          throw new RuntimeException(indexExpr.indexed() + " can't be indexed");
+        }
+      }
+      case ArrayAssignExpr arrayAssignExpr -> {
+        if (evaluate(arrayAssignExpr.name().indexed()) instanceof Array arr) {
+          if (evaluate(arrayAssignExpr.name().index()) instanceof Integer index) {
+            Object object = evaluate(arrayAssignExpr.value());
+            arr.set(index, object);
+            yield object;
+          } else {
+            throw new RuntimeException(arrayAssignExpr.name().index() + " can't be used as index");
+          }
+        } else {
+          throw new RuntimeException(arrayAssignExpr.name().indexed() + " can't be indexed");
+        }
       }
     };
   }
