@@ -3,11 +3,11 @@ package de.duckulus.minesketch.interpreter;
 import de.duckulus.minesketch.Parser;
 import de.duckulus.minesketch.Scanner;
 import de.duckulus.minesketch.ast.Expr;
-import de.duckulus.minesketch.ast.Expr.ArrayAssignExpr;
 import de.duckulus.minesketch.ast.Expr.ArrayExpr;
 import de.duckulus.minesketch.ast.Expr.AssignExpr;
 import de.duckulus.minesketch.ast.Expr.BinaryExpr;
 import de.duckulus.minesketch.ast.Expr.CallExpr;
+import de.duckulus.minesketch.ast.Expr.IndexAssignExpr;
 import de.duckulus.minesketch.ast.Expr.IndexExpr;
 import de.duckulus.minesketch.ast.Expr.LiteralExpr;
 import de.duckulus.minesketch.ast.Expr.LogicalExpr;
@@ -49,6 +49,20 @@ public class Interpreter {
       case String s -> s.length();
       case Array arr -> arr.length();
       default -> throw new RuntimeException("Function length can not be applied to this type");
+    }));
+
+    addBuiltinFunction("sin", new BuiltinFunction(1, args -> {
+      if (!(args.getFirst() instanceof Number)) {
+        throw new RuntimeException("Function sin expects a number as its argument");
+      }
+      return Math.sin((double) args.getFirst());
+    }));
+
+    addBuiltinFunction("cos", new BuiltinFunction(1, args -> {
+      if (!(args.getFirst() instanceof Number)) {
+        throw new RuntimeException("Function cos expects a number as its argument");
+      }
+      return Math.cos((double) args.getFirst());
     }));
   }
 
@@ -137,6 +151,7 @@ public class Interpreter {
 
   public Object evaluate(Expr expression) {
     return switch (expression) {
+      case null -> null;
       case LiteralExpr literalExpr -> literalExpr.value();
       case BinaryExpr(Expr leftExpr, Token operator, Expr rightExpr) -> {
         Object left = evaluate(leftExpr);
@@ -269,27 +284,36 @@ public class Interpreter {
         };
       }
       case IndexExpr indexExpr -> {
-        if (evaluate(indexExpr.indexed()) instanceof Array arr) {
+        Object indexed = evaluate(indexExpr.indexed());
+        if (indexed instanceof Array arr) {
           if (evaluate(indexExpr.index()) instanceof Integer index) {
             yield arr.get(index);
           } else {
             throw new RuntimeException(indexExpr.index() + "can't be used as index");
           }
+        } else if (indexed instanceof Dictionary dict) {
+          yield dict.get(evaluate(indexExpr.index()).toString());
         } else {
           throw new RuntimeException(indexExpr.indexed() + " can't be indexed");
         }
       }
-      case ArrayAssignExpr arrayAssignExpr -> {
-        if (evaluate(arrayAssignExpr.name().indexed()) instanceof Array arr) {
-          if (evaluate(arrayAssignExpr.name().index()) instanceof Integer index) {
-            Object object = evaluate(arrayAssignExpr.value());
+      case IndexAssignExpr indexAssignExpr -> {
+        Object indexed = evaluate(indexAssignExpr.name().indexed());
+        if (indexed instanceof Array arr) {
+          if (evaluate(indexAssignExpr.name().index()) instanceof Integer index) {
+            Object object = evaluate(indexAssignExpr.value());
             arr.set(index, object);
             yield object;
           } else {
-            throw new RuntimeException(arrayAssignExpr.name().index() + " can't be used as index");
+            throw new RuntimeException(indexAssignExpr.name().index() + " can't be used as index");
           }
+        } else if (indexed instanceof Dictionary dict) {
+          String key = evaluate(indexAssignExpr.name().index()).toString();
+          Object value = evaluate(indexAssignExpr.value());
+          dict.set(key, value);
+          yield value;
         } else {
-          throw new RuntimeException(arrayAssignExpr.name().indexed() + " can't be indexed");
+          throw new RuntimeException(indexAssignExpr.name().indexed() + " can't be indexed");
         }
       }
       case ArrayExpr(List<Expr> elements) ->

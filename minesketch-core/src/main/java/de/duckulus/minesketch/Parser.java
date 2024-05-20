@@ -1,11 +1,11 @@
 package de.duckulus.minesketch;
 
 import de.duckulus.minesketch.ast.Expr;
-import de.duckulus.minesketch.ast.Expr.ArrayAssignExpr;
 import de.duckulus.minesketch.ast.Expr.ArrayExpr;
 import de.duckulus.minesketch.ast.Expr.AssignExpr;
 import de.duckulus.minesketch.ast.Expr.BinaryExpr;
 import de.duckulus.minesketch.ast.Expr.CallExpr;
+import de.duckulus.minesketch.ast.Expr.IndexAssignExpr;
 import de.duckulus.minesketch.ast.Expr.IndexExpr;
 import de.duckulus.minesketch.ast.Expr.LiteralExpr;
 import de.duckulus.minesketch.ast.Expr.LogicalExpr;
@@ -58,6 +58,8 @@ public class Parser {
       return ifStatement();
     } else if (match(TokenType.WHILE)) {
       return whileStatement();
+    } else if (match(TokenType.FOR)) {
+      return forStatement();
     } else if (match(TokenType.RETURN)) {
       return returnStatement();
     } else if (match(TokenType.LEFT_BRACE)) {
@@ -69,9 +71,52 @@ public class Parser {
     return new ExprStmt(expr);
   }
 
+  private Stmt forStatement() {
+    consume(TokenType.LEFT_PAREN);
+    Stmt declaration = null;
+    if (!match(TokenType.SEMICOLON)) {
+      if (match(TokenType.VAR)) {
+        declaration = varDeclaration();
+      } else {
+        declaration = new ExprStmt(expression());
+        consume(TokenType.SEMICOLON);
+      }
+    }
+
+    Expr condition = null;
+    if (!match(TokenType.SEMICOLON)) {
+      condition = expression();
+      consume(TokenType.SEMICOLON);
+    }
+
+    Expr increment = null;
+    if (!match(TokenType.RIGHT_PAREN)) {
+      increment = expression();
+      consume(TokenType.RIGHT_PAREN);
+    }
+
+    consume(TokenType.LEFT_BRACE);
+    BlockStmt body = block();
+
+    if (increment != null) {
+      body.statements().add(new ExprStmt(increment));
+    }
+
+    List<Stmt> statements = new ArrayList<>();
+    if (declaration != null) {
+      statements.add(declaration);
+    }
+    statements.add(new WhileStmt(condition == null ? new LiteralExpr(true) : condition, body));
+
+    return new BlockStmt(statements);
+  }
+
   private Stmt returnStatement() {
-    Expr expr = expression();
-    consume(TokenType.SEMICOLON);
+    Expr expr = null;
+    if (!match(TokenType.SEMICOLON)) {
+      expr = expression();
+      consume(TokenType.SEMICOLON);
+    }
     return new ReturnStmt(expr);
   }
 
@@ -156,7 +201,7 @@ public class Parser {
       if (left instanceof VariableExpr varExpr) {
         return new AssignExpr(varExpr.variable(), right);
       } else if (left instanceof IndexExpr indexExpr) {
-        return new ArrayAssignExpr(indexExpr, right);
+        return new IndexAssignExpr(indexExpr, right);
       } else {
         throw new RuntimeException("Invalid assignment target " + left);
       }

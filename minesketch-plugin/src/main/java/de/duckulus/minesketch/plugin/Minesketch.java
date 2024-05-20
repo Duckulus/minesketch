@@ -1,5 +1,7 @@
 package de.duckulus.minesketch.plugin;
 
+import de.duckulus.minesketch.plugin.command.SketchCommand;
+import de.duckulus.minesketch.plugin.event.BukkitEventDispatcher;
 import java.io.IOException;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -42,6 +44,8 @@ public class Minesketch extends JavaPlugin {
     }
 
     sketchRunner = new SketchRunner();
+
+    getServer().getPluginManager().registerEvents(new BukkitEventDispatcher(sketchRunner), this);
 
     SketchCommand sketchCommand = new SketchCommand(sketchManager, sketchRunner);
     getCommand("sketch").setExecutor(sketchCommand);

@@ -1,5 +1,9 @@
-package de.duckulus.minesketch.plugin;
+package de.duckulus.minesketch.plugin.command;
 
+import de.duckulus.minesketch.plugin.Minesketch;
+import de.duckulus.minesketch.plugin.Sketch;
+import de.duckulus.minesketch.plugin.SketchManager;
+import de.duckulus.minesketch.plugin.SketchRunner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

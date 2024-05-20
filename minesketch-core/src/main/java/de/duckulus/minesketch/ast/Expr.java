@@ -9,7 +9,7 @@ public sealed interface Expr {
 
   }
 
-  record ArrayAssignExpr(IndexExpr name, Expr value) implements Expr {
+  record IndexAssignExpr(IndexExpr name, Expr value) implements Expr {
 
   }
 
