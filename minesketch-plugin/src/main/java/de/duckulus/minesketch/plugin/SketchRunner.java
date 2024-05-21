@@ -29,8 +29,8 @@ public class SketchRunner {
   private Thread thread;
   private World world;
 
-  private Map<Class<? extends Event>, Function> registeredEvents = new HashMap<>();
-  private Queue<SketchEvent> eventQueue = new ArrayBlockingQueue<>(100);
+  private final Map<Class<? extends Event>, Function> registeredEvents = new HashMap<>();
+  private final Queue<SketchEvent> eventQueue = new ArrayBlockingQueue<>(100);
 
   public SketchRunner() {
     interpreter.addBuiltinFunction("broadcast", new BuiltinFunction(1, args -> {
@@ -71,6 +71,7 @@ public class SketchRunner {
     }
 
     eventQueue.clear();
+    registeredEvents.clear();
 
     Location location = new Location(Bukkit.getWorlds().getFirst(), 0d, 0d, 0d);
     if (audience instanceof Player player) {
@@ -135,7 +136,7 @@ public class SketchRunner {
     if (!isBusy() || !registeredEvents.containsKey(event.getClass())) {
       return;
     }
-    if (event.getHand()!= EquipmentSlot.HAND || event.getClickedBlock() == null) {
+    if (event.getHand() != EquipmentSlot.HAND || event.getClickedBlock() == null) {
       return;
     }
     Dictionary data = new Dictionary();
@@ -150,7 +151,7 @@ public class SketchRunner {
     if (!isBusy() || !registeredEvents.containsKey(event.getClass())) {
       return;
     }
-    if(!event.getPlayer().isOnGround()) {
+    if (!event.getPlayer().isOnGround()) {
       return;
     }
     Dictionary data = new Dictionary();
