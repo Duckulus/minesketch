@@ -53,7 +53,7 @@ will compile the plugin and put it into the `minesketch-plugin/build/libs` folde
 
 Put your Sketches into `{Server Folder}/plugins/Minesketch/sketches` so the plugin can find them.
 
-You interact with the plugin using the /sketch command. There are its subcommands:
+You interact with the plugin using the /sketch command. These are its subcommands:
 
 ```
 /sketch list - Lists all available sketches
