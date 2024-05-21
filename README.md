@@ -10,7 +10,7 @@ This demonstration shows a part of what's possible using the minesketch language
 can
 be found in [./examples/gameoflife.mcsketch](./examples/gameoflife.mcsketch)
 
-![game of life demo](./docs/assets/demo.mov)
+https://github.com/Duckulus/minesketch/assets/76813487/593eecd8-3f29-4e5d-895b-064b343209b1
 
 ## Your first sketch
 
@@ -33,6 +33,8 @@ fn tick() {
     i = i + 1;
 }
 ```
+
+https://github.com/Duckulus/minesketch/assets/76813487/70f00824-952c-49a5-ad51-882989be7a79
 
 Have a look at [the specification](./docs/spec.md) for a detailed introduction the minesketch
 language
