@@ -140,7 +140,6 @@ List of Events and the information about them:
 ### Example
 
 ```
-
 fn handleSneak(data) {
     broadcast(data["player"] + " sneaked");
 }
@@ -149,5 +148,4 @@ fn setup() {
     ~ The event type is passed as the first parameter, the function handlin the event as the second parameter
     handle("sneak", handleSneak); 
 }
-
 ```
