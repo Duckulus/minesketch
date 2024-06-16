@@ -145,7 +145,7 @@ fn handleSneak(data) {
 }
 
 fn setup() {
-    ~ The event type is passed as the first parameter, the function handlin the event as the second parameter
+    ~ The event type is passed as the first parameter, the function handling the event as the second parameter
     handle("sneak", handleSneak); 
 }
 ```
