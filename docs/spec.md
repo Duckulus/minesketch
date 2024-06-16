@@ -117,7 +117,7 @@ handle(string, function) -> Register [event handler](#events).
 
 ## Events
 
-Events allow you to define functions that get called once a player. Your event function has to take
+Events allow you to define functions that get called once a specific action occurs ingame. Your event function has to take
 in a single parameter. When your function gets called this parameter will be set to a dictionary
 that contains some more information about the event. The contents of the dictionary depend on the
 event type.
