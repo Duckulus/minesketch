@@ -25,7 +25,7 @@ fn tick() {
 ## Variables
 
 Variables are declared using the `var`-keyword. There is no type checking, so variables are not
-assignes a specific time. You can create an int and later assign it a string. There are also no
+assigned one specific type. You can create an int and later assign it a string. There are also no
 type annotaions in minesketch.
 
 Every variable has one of the following types at runtime:
