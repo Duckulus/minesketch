@@ -1,47 +1,19 @@
-# `minesketch`
+# ![minesketch](./assets/Minesketch.png)
 
 minesketch is a dynamically typed scripting language which can be used to program stuff in
 Minecraft.
 It was created for the Hack Club programming language jam.
 
-## Demo
+![demo](./assets/demo.gif)
 
-This demonstration shows a part of what's possible using the minesketch language. Its source code
-can
-be found in [./examples/gameoflife.mcsketch](./examples/gameoflife.mcsketch)
+Check out [the gameoflife example](./examples/gameoflife.mcsketch) for the code of this demo
 
-https://github.com/Duckulus/minesketch/assets/76813487/9075c54e-0dd9-4aa5-a6d1-a2f63ee824e3
+## Getting Started
 
-## Your first sketch
+To get started with minesketch, check out the [guide](./docs/guide.md) or have a look at
+the [examples](./examples)
 
-A sketch is a program which can run inside minecraft. Sketches are stored in files ending
-in `.mcsketch`.
-They generally look like this:
-
-```
-var i = 0;
-
-~ setup function is executed once when the sketch gets loaded
-fn setup() {
-	broadcast("hello world");
-}
-
-~ tick function is executed 20 times per second while the sketch is active
-fn tick() {
-    ~ this sketch just counts up indefinitely in chat
-    broadcast(i);
-    i = i + 1;
-}
-```
-
-Result:
-
-https://github.com/Duckulus/minesketch/assets/76813487/f2254ed0-4aba-4ddc-9b8e-7a352235d7c4
-
-Have a look at [the specification](./docs/spec.md) for a detailed introduction the minesketch
-language
-
-## Running the minesketch plugin
+## Building the plugin from source 
 
 Sketches are ran using a spigot plugin. The plugin is compatible with Paper 1.20.6 and above. To
 compile the plugin an installation of
@@ -50,6 +22,8 @@ is required.
 
 ``./gradlew :minesketch-plugin:shadowJar`` \
 will compile the plugin and put it into the `minesketch-plugin/build/libs` folder for you.
+
+## Working with the plugin
 
 Put your Sketches into `{Server Folder}/plugins/Minesketch/sketches` so the plugin can find them.
 
